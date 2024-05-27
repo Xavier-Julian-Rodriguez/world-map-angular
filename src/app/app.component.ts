@@ -8,7 +8,6 @@ import { ApiService } from './api.service';
   standalone: true,
   imports: [RouterOutlet, Map],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
   providers: [ApiService, SharedService],
 })
 export class AppComponent implements OnInit {
@@ -17,24 +16,26 @@ export class AppComponent implements OnInit {
   selectedCountry: string = '';
   countryData: any = {};
 
-  constructor(
-    private sharedService: SharedService,
-    private apiService: ApiService
-  ) {}
+  private sharedService: SharedService;
+  private apiService: ApiService;
+
+  constructor(sharedService: SharedService, apiService: ApiService) {
+    (this.sharedService = sharedService), (this.apiService = apiService);
+  }
   ngOnInit() {
     this.sharedService.selectedCountry$.subscribe({
       next: (country) => {
         this.selectedCountry = country;
-        this.fetchCountryData();
+        this.getTheCountryData();
       },
     });
   }
-  handleCountrySelected(countryId: string) {
+  countrySelector(countryId: string) {
     this.selectedCountry = countryId;
-    this.fetchCountryData();
+    this.getTheCountryData();
   }
 
-  fetchCountryData() {
+  getTheCountryData() {
     if (this.selectedCountry) {
       this.apiService.getCountryData(this.selectedCountry).subscribe({
         next: (data) => {
@@ -44,7 +45,6 @@ export class AppComponent implements OnInit {
             console.log('Country data:', this.countryData);
           }
         },
-        error: (error) => console.error(error),
       });
     }
   }

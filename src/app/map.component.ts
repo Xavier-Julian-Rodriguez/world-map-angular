@@ -23,12 +23,6 @@ export class Map implements AfterViewInit {
 
   countryId!: string;
   countryName!: string;
-  countryCapital!: string;
-  countryregion!: string;
-  incomeLevel!: string;
-  population!: number;
-  longitude!: number;
-  latitude!: number;
 
   constructor(
     private sharedService: SharedService,
@@ -37,27 +31,30 @@ export class Map implements AfterViewInit {
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.getInfo();
+      this.addEventListenersToPaths();
     }
   }
 
-  async getInfo() {
-    if (isPlatformBrowser(this.platformId)) {
-      document.querySelectorAll('path').forEach(async (element) => {
-        element.addEventListener('mouseover', async (event) => {
-          const nameValue = element.getAttribute('name');
-          const countryId = element.getAttribute('id');
-          if (nameValue !== null && countryId !== null) {
-            this.countryName = nameValue;
-            this.sharedService.setSelectedCountry(this.countryName);
-            console.log(nameValue);
-            this.countryId = countryId;
-            this.selectedCountry.emit(nameValue);
-            this.sharedService.setSelectedCountryId(this.countryId);
-            console.log(countryId);
-          }
-        });
-      });
+  addEventListenersToPaths() {
+    const paths = document.querySelectorAll('path');
+    paths.forEach((element) => {
+      element.addEventListener('click', this.onPathClick.bind(this));
+    });
+  }
+
+  onPathClick(event: Event) {
+    const element = event.currentTarget as SVGElement;
+    const nameValue = element.getAttribute('name');
+    const countryId = element.getAttribute('id');
+
+    if (nameValue !== null && countryId !== null) {
+      this.countryName = nameValue;
+      this.countryId = countryId;
+      this.selectedCountry.emit(nameValue);
+      this.selectedCountryId.emit(countryId);
+      this.sharedService.setSelectedCountry(this.countryName);
+      this.sharedService.setSelectedCountryId(this.countryId);
+      console.log(`Country Name: ${nameValue}, Country ID: ${countryId}`);
     }
   }
 }
